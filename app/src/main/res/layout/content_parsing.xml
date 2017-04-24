@@ -13,4 +13,9 @@
     tools:context="com.app.vkparser.vkparser.ParsingActivity"
     tools:showIn="@layout/activity_parsing">
 
+    <ListView
+        android:id="@+id/members_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </RelativeLayout>

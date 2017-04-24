@@ -9,16 +9,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
-import com.vk.sdk.util.VKUtil;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -30,19 +28,18 @@ public class VKParserActivity extends AppCompatActivity {
 
     private Unbinder mUnbinder;
 
-    @BindView(R.id.fingerprint) TextView mFingerPrint;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vkparser);
         mUnbinder = ButterKnife.bind(this);
 
-        String[] fingerprints = VKUtil.getCertificateFingerprint(this, this.getPackageName());
-
-        mFingerPrint.setText(fingerprints[0]);
-
         checkForPermissions();
+
+        if(VKSdk.isLoggedIn()) {
+            Intent startSettingsActivityIntent = new Intent(VKParserActivity.this, SettingsActivity.class);
+            startActivity(startSettingsActivityIntent);
+        }
     }
 
     @Override

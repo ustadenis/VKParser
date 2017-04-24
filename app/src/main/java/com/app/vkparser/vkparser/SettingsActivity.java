@@ -14,14 +14,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-import static com.app.vkparser.vkparser.R.id.fab;
-
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     public static final String GROPE_ID_EXTRA = "grope_id_extra";
     public static final String QUERY_EXTRA = "query_extra";
+    public static final String GROUP_EXTRA = "group__extra";
 
     private Unbinder mUnbinder;
 
