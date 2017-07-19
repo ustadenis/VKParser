@@ -1,4 +1,4 @@
-package com.app.vkparser.vkparser;
+package com.app.vkparser.vkparser.screens;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -8,6 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ListView;
 
+import com.app.vkparser.vkparser.MemberAdapter;
+import com.app.vkparser.vkparser.R;
+import com.app.vkparser.vkparser.Variables;
+import com.app.vkparser.vkparser.screens.searchscreen.SearchActivity;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKParameters;
@@ -51,13 +55,13 @@ public class ParsingActivity extends AppCompatActivity {
 
         mUnbinder = ButterKnife.bind(this);
 
-        Intent intent = getIntent();
-        if (intent.hasExtra(SettingsActivity.GROPE_ID_EXTRA)) {
-            mGropeID = intent.getStringExtra(SettingsActivity.GROPE_ID_EXTRA);
-        } else if(intent.hasExtra(SettingsActivity.GROUP_EXTRA)) {
-            HashMap<String, Object> group = (HashMap<String, Object>) intent.getSerializableExtra(SettingsActivity.GROUP_EXTRA);
+        /*Intent intent = getIntent();
+        if (intent.hasExtra(SearchActivity.GROPE_ID_EXTRA)) {
+            mGropeID = intent.getStringExtra(SearchActivity.GROPE_ID_EXTRA);
+        } else if(intent.hasExtra(SearchActivity.GROUP_EXTRA)) {
+            HashMap<String, Object> group = (HashMap<String, Object>) intent.getSerializableExtra(SearchActivity.GROUP_EXTRA);
             mGropeID = group.get(Variables.TAG_ID).toString();
-        }
+        }*/
 
         mAdapter = new MemberAdapter(ParsingActivity.this, new ArrayList<VKApiUserFull>());
         mListView.setAdapter(mAdapter);

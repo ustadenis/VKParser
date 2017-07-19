@@ -1,4 +1,4 @@
-package com.app.vkparser.vkparser;
+package com.app.vkparser.vkparser.common;
 
 import android.app.Application;
 

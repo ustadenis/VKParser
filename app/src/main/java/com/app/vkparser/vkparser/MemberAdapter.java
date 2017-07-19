@@ -30,7 +30,7 @@ public class MemberAdapter extends ArrayAdapter {
 
     private Handler mUiHandler;
 
-    interface OnUserReady {
+    public interface OnUserReady {
         void onUser(VKApiUserFull user);
     }
 

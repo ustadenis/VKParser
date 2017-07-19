@@ -1,23 +1,14 @@
-package com.app.vkparser.vkparser;
+package com.app.vkparser.vkparser.interactors;
 
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
+import com.app.vkparser.vkparser.Variables;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.methods.VKApiGroups;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,77 +18,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+import io.reactivex.Observable;
 
-import static com.app.vkparser.vkparser.SettingsActivity.GROPE_ID_EXTRA;
-import static com.app.vkparser.vkparser.SettingsActivity.GROUP_EXTRA;
+/**
+ * Created by Denis on 27.06.2017.
+ */
 
-public class GropesSearchActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class GroupSearchInteractor {
 
-    private static final String TAG = SettingsActivity.class.getSimpleName();
+    public Observable<List<HashMap<String, Object>>> searchGoups(String query, int offset) {
+        return Observable.create(emitter -> {
+            final List<HashMap<String, Object>> groupsList = new ArrayList<>();
 
-    private Unbinder mUnbinder;
-    private String mQuery;
-    private GropesAdapter mAdapter;
-
-    @BindView(R.id.goupes_listview) ListView mListView;
-
-    SearchGroupsAsyncTask task;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gropes_search);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mUnbinder = ButterKnife.bind(this);
-
-        Intent intent = getIntent();
-        if (intent.hasExtra(SettingsActivity.QUERY_EXTRA)) {
-            mQuery = intent.getStringExtra(SettingsActivity.QUERY_EXTRA);
-        }
-
-        mListView.setOnItemClickListener(this);
-
-        searchGroups();
-    }
-
-    private void searchGroups() {
-        if (task != null) {
-            task.cancel(true);
-        }
-        task = new SearchGroupsAsyncTask();
-        task.execute();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (task != null && !task.isCancelled()) {
-            task.cancel(true);
-        }
-        mUnbinder.unbind();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        HashMap<String, Object> group = (HashMap<String, Object>) parent.getAdapter().getItem(position);
-
-        Intent startParsingActivity = new Intent(GropesSearchActivity.this, ParsingActivity.class);
-        startParsingActivity.putExtra(GROUP_EXTRA, group);
-        startActivity(startParsingActivity);
-    }
-
-    class SearchGroupsAsyncTask extends AsyncTask {
-
-        List<HashMap<String, Object>> groupsList = new ArrayList<>();
-
-        @Override
-        protected Object doInBackground(Object[] params) {
-            VKRequest request = VKApi.groups().search(VKParameters.from(VKApiConst.Q, mQuery));
+            VKRequest request = VKApi.groups().search(VKParameters.from(VKApiConst.Q, query, VKApiConst.OFFSET, offset));
             request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+
+                @Override
+                public void onError(VKError error) {
+                    super.onError(error);
+                    emitter.onError(new Exception(error.apiError.errorMessage));
+                }
+
                 @Override
                 public void onComplete(VKResponse response) {
                     super.onComplete(response);
@@ -112,7 +53,7 @@ public class GropesSearchActivity extends AppCompatActivity implements AdapterVi
                             JSONArray groupsArrayJson = jsonObject.getJSONArray("items");
 
                             // Проходим по всем группам циклом, для создания ассоциативного массива
-                            for (int i = 0; i < groupsArrayJson.length() && !isCancelled(); i++) {
+                            for (int i = 0; i < groupsArrayJson.length(); i++) {
                                 JSONObject p = groupsArrayJson.getJSONObject(i);
                                 //Создаем некоторые переменные для дальнейшей работы
                                 String imageGroup = p.optString(Variables.TAG_IMAGE, ""); // достаем миниатюру
@@ -138,19 +79,15 @@ public class GropesSearchActivity extends AppCompatActivity implements AdapterVi
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Log.e("JSONError", e.toString());
+                            emitter.onError(e);
                         }
                     }
+
+                    emitter.onNext(groupsList);
+                    emitter.onComplete();
                 }
             });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            mAdapter = new GropesAdapter(GropesSearchActivity.this, groupsList);
-            mListView.setAdapter(mAdapter);
-            super.onPostExecute(o);
-        }
+        });
     }
+
 }
